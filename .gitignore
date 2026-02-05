@@ -1,0 +1,44 @@
+# Output data files
+*.csv
+batches/
+batches_v2/
+retry_batches/
+
+# Progress files
+progress.txt
+progress_v2.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude
+.claude/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Old/obsolete files (not part of main project)
+scraper.py
+extract_revenue.py
+retry_scraper.py
+retry_no_revenue.py

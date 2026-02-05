@@ -1,0 +1,162 @@
+# =============================================================================
+# DBD DataWarehouse Revenue Scraper - Configuration File
+# =============================================================================
+# This file contains all configurable settings for the scraper.
+# Command line arguments will override these settings.
+#
+# Usage:
+#   python3 scraper_v2.py                      # Uses this config file
+#   python3 scraper_v2.py --config other.yaml  # Uses different config
+#   python3 scraper_v2.py --workers 4          # CLI overrides config
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Input Settings
+# -----------------------------------------------------------------------------
+input:
+  # Path to input file (CSV, Excel .xlsx/.xls, or text file)
+  file: "companies.csv"
+
+  # Column name containing company names
+  # Set to null to auto-detect or use first column
+  company_column: "company_name"
+
+  # Column name containing registration numbers (optional)
+  # If provided, companies with existing reg numbers will skip search
+  reg_column: null
+
+  # Excel sheet name (only for .xlsx/.xls files)
+  # Set to null to use the first sheet
+  sheet: null
+
+  # Filter to only include Thai companies (containing บริษัท or ห้างหุ้นส่วน)
+  filter_thai: true
+
+# -----------------------------------------------------------------------------
+# Output Settings
+# -----------------------------------------------------------------------------
+output:
+  # Output CSV file for successful revenue extractions
+  revenue_file: "dbd_revenue.csv"
+
+  # Output CSV file for companies not found or without revenue data
+  not_found_file: "dbd_not_found.csv"
+
+  # Directory for temporary batch files
+  batch_dir: "batches_v2"
+
+  # Skip backup confirmation when output files exist
+  force_overwrite: false
+
+# -----------------------------------------------------------------------------
+# Search Settings
+# -----------------------------------------------------------------------------
+search:
+  # Maximum pages to search per search term (DBD shows 10 results per page)
+  # Higher = more thorough but slower
+  max_pages: 100
+
+  # Minimum similarity score (0.0 to 1.0) for fallback matching
+  # Only matches >= this threshold will be accepted
+  # Set to 1.0 to only accept exact matches
+  similarity_threshold: 0.75
+
+# -----------------------------------------------------------------------------
+# Processing Settings
+# -----------------------------------------------------------------------------
+processing:
+  # Number of parallel browser workers
+  # More workers = faster but uses more memory and may hit rate limits
+  workers: 5
+
+  # Number of companies per batch (for progress saving)
+  batch_size: 20
+
+  # Seconds to wait between requests (to avoid rate limiting)
+  delay_between_requests: 1
+
+  # Start from Nth company (0-indexed, for resuming)
+  start_index: 0
+
+# -----------------------------------------------------------------------------
+# Retry Settings
+# -----------------------------------------------------------------------------
+retry:
+  # Maximum retries when company found but no revenue data displayed
+  max_retries: 3
+
+  # Additional seconds to wait per retry attempt
+  extra_wait_per_retry: 2
+
+# -----------------------------------------------------------------------------
+# Browser Settings
+# -----------------------------------------------------------------------------
+browser:
+  # Run browser in headless mode (no visible window)
+  headless: true
+
+  # Seconds to wait for initial page load
+  page_load_wait: 10
+
+  # Seconds to wait after clicking financial tab
+  tab_click_wait: 1
+
+  # Seconds to wait for financial table to load
+  table_load_wait: 2
+
+  # Additional wait time for data to appear
+  extra_wait: 1
+
+# -----------------------------------------------------------------------------
+# Debug Settings
+# -----------------------------------------------------------------------------
+debug:
+  # Enable debug mode (saves screenshots on errors)
+  enabled: false
+
+  # Limit processing to N companies (for testing)
+  # Set to null to process all companies
+  test_count: null
+
+# -----------------------------------------------------------------------------
+# Financial Data Extraction Settings
+# -----------------------------------------------------------------------------
+extraction:
+  # Extraction mode:
+  # - "all": Extract all fields listed below
+  # - "revenue_only": Only extract รายได้รวม (backward compatible)
+  mode: "all"
+
+  # Financial fields to extract from งบกำไรขาดทุน (Income Statement)
+  # Only used when mode is "all"
+  # Comment out any fields you don't need
+  income_statement_fields:
+    - รายได้หลัก                         # Main Revenue
+    - รายได้รวม                         # Total Revenue
+    - ต้นทุนขาย                         # Cost of Sales
+    - กำไร(ขาดทุน) ขั้นต้น               # Gross Profit/Loss
+    - ค่าใช้จ่ายในการขายและบริหาร         # Selling & Admin Expenses
+    - รายจ่ายรวม                        # Total Expenses
+    - ดอกเบี้ยจ่าย                       # Interest Expense
+    - กำไร(ขาดทุน) ก่อนภาษี              # Profit/Loss Before Tax
+    - ภาษีเงินได้                        # Income Tax
+    - กำไร(ขาดทุน) สุทธิ                 # Net Profit/Loss
+
+  # Enable extraction from งบแสดงฐานะการเงิน (Balance Sheet / Statement of Financial Position)
+  # Set to true to also extract balance sheet data
+  include_balance_sheet: false
+
+  # Financial fields to extract from งบแสดงฐานะการเงิน (Balance Sheet)
+  # Only used when include_balance_sheet is true
+  balance_sheet_fields:
+    - ลูกหนี้การค้าสุทธิ                  # Trade Receivables (Net)
+    - สินค้าคงเหลือ                      # Inventory
+    - สินทรัพย์หมุนเวียน                  # Current Assets
+    - ที่ดิน อาคารและอุปกรณ์              # Property, Plant & Equipment
+    - สินทรัพย์ไม่หมุนเวียน               # Non-Current Assets
+    - สินทรัพย์รวม                       # Total Assets
+    - หนี้สินหมุนเวียน                    # Current Liabilities
+    - หนี้สินไม่หมุนเวียน                 # Non-Current Liabilities
+    - หนี้สินรวม                         # Total Liabilities
+    - ส่วนของผู้ถือหุ้น                   # Shareholders' Equity
+    - หนี้สินรวมและส่วนของผู้ถือหุ้น       # Total Liabilities & Equity
