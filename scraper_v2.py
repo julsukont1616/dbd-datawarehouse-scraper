@@ -1247,7 +1247,7 @@ def extract_financial_data(driver, registration_number):
     """
     financial_data = {}
 
-    for prefix in ['5', '7', '6', '']:
+    for prefix in ['5', '7', '6', '3', '']:  # '3' is for partnerships (ห้างหุ้นส่วน)
         try:
             url = f"{BASE_URL}/company/profile/{prefix}{registration_number}"
             driver.get(url)
