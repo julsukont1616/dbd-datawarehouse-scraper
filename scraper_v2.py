@@ -98,6 +98,8 @@ import time
 import argparse
 import re
 import os
+import tempfile
+import platform
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -434,10 +436,17 @@ def setup_driver(headless=True):
             options=chrome_options
         )
 
-    # Set realistic user agent
+    # Set realistic user agent based on current OS
     try:
+        os_name = platform.system()
+        if os_name == 'Windows':
+            user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        elif os_name == 'Darwin':
+            user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        else:
+            user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         driver.execute_cdp_cmd('Network.setUserAgentOverride', {
-            "userAgent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            "userAgent": user_agent
         })
     except:
         pass
@@ -1497,7 +1506,8 @@ def process_company_chunk(args_tuple):
                         print(f"[Worker {worker_id}]   No revenue data, will retry...")
 
                 if debug:
-                    driver.save_screenshot(f"/tmp/debug_v2_w{worker_id}_{i}.png")
+                    debug_path = os.path.join(tempfile.gettempdir(), f"debug_v2_w{worker_id}_{i}.png")
+                    driver.save_screenshot(debug_path)
 
                 if not revenue_data:
                     print(f"[Worker {worker_id}]   No revenue data found (after {MAX_RETRY_NO_REVENUE} retries)")
